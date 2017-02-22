@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="Toorkits" />
+
+
+
+<meta name="description" content="nginx_lua模块淘宝开发的nginx第三方模块,它能将lua语言嵌入到nginx配置中,从而使用lua就极大增强了nginx的能力.nginx以高并发而知名,lua脚本轻便,两者的搭配堪称完美。ngx_lua_waf包含的过滤规则：防止sql注入，本地包含，部分溢出，fuzzing测试，xss,SSRF等web攻击防止svn/备份之类文件泄漏防止ApacheBench之类压力测试工具的攻击">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CentOS6.5搭建ngx_lua_waf">
+<meta property="og:url" content="https://toorkits.github.io/2017/02/22/5-CentOS6.5搭建ngx_lua_waf/index.html">
+<meta property="og:site_name" content="Toorkits' blog">
+<meta property="og:description" content="nginx_lua模块淘宝开发的nginx第三方模块,它能将lua语言嵌入到nginx配置中,从而使用lua就极大增强了nginx的能力.nginx以高并发而知名,lua脚本轻便,两者的搭配堪称完美。ngx_lua_waf包含的过滤规则：防止sql注入，本地包含，部分溢出，fuzzing测试，xss,SSRF等web攻击防止svn/备份之类文件泄漏防止ApacheBench之类压力测试工具的攻击">
+<meta property="og:image" content="https://toorkits.github.io/images/mod1/lua.png">
+<meta property="og:updated_time" content="2017-02-22T09:24:56.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="CentOS6.5搭建ngx_lua_waf">
+<meta name="twitter:description" content="nginx_lua模块淘宝开发的nginx第三方模块,它能将lua语言嵌入到nginx配置中,从而使用lua就极大增强了nginx的能力.nginx以高并发而知名,lua脚本轻便,两者的搭配堪称完美。ngx_lua_waf包含的过滤规则：防止sql注入，本地包含，部分溢出，fuzzing测试，xss,SSRF等web攻击防止svn/备份之类文件泄漏防止ApacheBench之类压力测试工具的攻击">
+<meta name="twitter:image" content="https://toorkits.github.io/images/mod1/lua.png">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="Toorkits&#39; blog" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-flash.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>CentOS6.5搭建ngx_lua_waf | Toorkits&#39; blog</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: false,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: undefined
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">Toorkits</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">生活不止眼前的苟且，还有诗和远方的田野!!</p>
+        
+
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="https://toorkits.github.io/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" href="https://toorkits.github.io/" title="GitHub"></a>
+                            
+                                <a class="fa 知乎" href="https://toorkits.github.io/" title="知乎"></a>
+                            
+                                <a class="fa 新浪微博" href="https://toorkits.github.io/" title="新浪微博"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://sosec.cc">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">生活不止眼前的苟且，还有诗和远方的田野。</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">Toorkits</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">Toorkits</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">生活不止眼前的苟且，还有诗和远方的田野!!</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="https://toorkits.github.io/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" target="_blank" href="https://toorkits.github.io/" title="GitHub"></a>
+                            
+                                <a class="fa 知乎" target="_blank" href="https://toorkits.github.io/" title="知乎"></a>
+                            
+                                <a class="fa 新浪微博" target="_blank" href="https://toorkits.github.io/" title="新浪微博"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-5-CentOS6.5搭建ngx_lua_waf" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/02/22/5-CentOS6.5搭建ngx_lua_waf/" class="article-date">
+      <time datetime="2017-02-22T09:25:38.000Z" itemprop="datePublished">2017-02-22</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      CentOS6.5搭建ngx_lua_waf
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/ngx-lua-waf/">ngx_lua_waf</a>
+    </div>
+
+
+        
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <hr>
+<p>nginx_lua模块淘宝开发的nginx第三方模块,它能将lua语言嵌入到nginx配置中,从而使用lua就极大增强了nginx的能力.nginx以高并发而知名,lua脚本轻便,两者的搭配堪称完美。<br>ngx_lua_waf包含的过滤规则：<br>防止sql注入，本地包含，部分溢出，fuzzing测试，xss,SSRF等web攻击<br>防止svn/备份之类文件泄漏<br>防止ApacheBench之类压力测试工具的攻击<br>屏蔽常见的扫描黑客工具，扫描器<br>屏蔽异常的网络请求<br>屏蔽图片附件类目录php执行权限<br>防止webshell上传</p>
+<hr>
+<a id="more"></a>
+<h1 id="一、安装openresty平台"><a href="#一、安装openresty平台" class="headerlink" title="一、安装openresty平台"></a>一、安装openresty平台</h1><hr>
+<p>OpenResty 是一个基于 NGINX 和 LuaJIT 的 Web 平台,相当于集成了lua的Nginx，比自己编译安装Nginx+Lua要方便很多。</p>
+<hr>
+<p>切换至root用户su</p>
+<h2 id="预装环境"><a href="#预装环境" class="headerlink" title="预装环境"></a>预装环境</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">yum install readline-devel pcre-devel openssl-devel gcc</div><div class="line"></div><div class="line">wget https://openresty.org/download/openresty-1.11.2.2.tar.gz</div><div class="line"></div><div class="line">tar zxvf openresty-1.11.2.2.tar.gz</div><div class="line"><span class="built_in">cd</span> openresty-1.11.2.2.tar.gz</div><div class="line">./configure</div><div class="line">gmake &amp;&amp; gmake install</div><div class="line"></div><div class="line">mkdir -p /usr/<span class="built_in">local</span>/openresty/site/lualib /usr/<span class="built_in">local</span>/openresty/site/pod /usr/<span class="built_in">local</span>/openresty/site/manifest</div><div class="line">ln -sf /usr/<span class="built_in">local</span>/openresty/nginx/sbin/nginx /usr/<span class="built_in">local</span>/openresty/bin/openresty</div></pre></td></tr></table></figure>
+<p>安装如果出现问题，可以参考 <a href="http://openresty.org/cn/installation.html" target="_blank" rel="external">http://openresty.org/cn/installation.html</a></p>
+<p>默认安装位置在/usr/local/openresty/nginx，修改conf/nginx.conf指定运行nginx worker的用户：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">user nginx;</div><div class="line">worker_processes  1;</div><div class="line"></div><div class="line"><span class="comment">#error_log  logs/error.log;</span></div><div class="line"><span class="comment">#error_log  logs/error.log  notice;</span></div><div class="line"><span class="comment">#error_log  logs/error.log  info;</span></div><div class="line"></div><div class="line"><span class="comment">#pid        logs/nginx.pid;</span></div></pre></td></tr></table></figure></p>
+<p>如果没有nginx用户，在root权限下运行useradd nginx即可添加。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Useradd nginx</div></pre></td></tr></table></figure></p>
+<h1 id="部署Ngx-lua-waf"><a href="#部署Ngx-lua-waf" class="headerlink" title="部署Ngx_lua_waf"></a>部署Ngx_lua_waf</h1><hr>
+<p>下载地址：<a href="https://github.com/loveshell/ngx_lua_waf" target="_blank" rel="external">https://github.com/loveshell/ngx_lua_waf</a></p>
+<hr>
+<p>下载安装包到nginx配置目录<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">cd</span> /usr/<span class="built_in">local</span>/openresty/nginx/conf</div></pre></td></tr></table></figure></p>
+<p>解压并重命名为waf：<br>然后修改Nginx.conf，在http下面增加以下waf配置：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">http &#123;</div><div class="line">    include       mime.types;</div><div class="line">    default_type  application/octet-stream;</div><div class="line"></div><div class="line">    <span class="comment"># Lua包的路径</span></div><div class="line">    lua_package_path <span class="string">"/usr/local/openresty/nginx/conf/waf/?.lua"</span>;</div><div class="line"></div><div class="line">    <span class="comment"># Lua运行时最大内存</span></div><div class="line">    lua_shared_dict <span class="built_in">limit</span> 10m;</div><div class="line"></div><div class="line">    <span class="comment"># Waf启动脚本</span></div><div class="line">    init_by_lua_file /usr/<span class="built_in">local</span>/openresty/nginx/conf/waf/init.lua;</div><div class="line"></div><div class="line">    <span class="comment"># Waf过滤逻辑脚本</span></div><div class="line">    access_by_lua_file /usr/<span class="built_in">local</span>/openresty/nginx/conf/waf/waf.lua;</div></pre></td></tr></table></figure></p>
+<p>然后配置waf下的config.lua文件，主要是waf规则目录(RulePath)和日志目录(logdir):<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line">RulePath = <span class="string">"/usr/local/openresty/nginx/conf/waf/wafconf"</span></div><div class="line">--规则存放目录</div><div class="line">attacklog = <span class="string">"off"</span></div><div class="line">--是否开启攻击信息记录，需要配置logdir</div><div class="line">logdir = <span class="string">"/usr/local/openresty/nginx/logs/hack/"</span></div><div class="line">--log存储目录，该目录需要用户自己新建，且需要nginx用户的可写权限</div><div class="line">UrlDeny=<span class="string">"on"</span></div><div class="line">--是否拦截url访问</div><div class="line">Redirect=<span class="string">"on"</span></div><div class="line">--是否拦截后重定向</div><div class="line">CookieMatch = <span class="string">"on"</span></div><div class="line">--是否拦截cookie攻击</div><div class="line">postMatch = <span class="string">"on"</span> </div><div class="line">--是否拦截post攻击</div><div class="line">whiteModule = <span class="string">"on"</span> </div><div class="line">--是否开启URL白名单</div><div class="line">black_fileExt=&#123;<span class="string">"php"</span>,<span class="string">"jsp"</span>&#125;</div><div class="line">--填写不允许上传文件后缀类型</div><div class="line">ipWhitelist=&#123;<span class="string">"127.0.0.1"</span>&#125;</div><div class="line">--ip白名单，多个ip用逗号分隔</div><div class="line">ipBlocklist=&#123;<span class="string">"1.0.0.1"</span>&#125;</div><div class="line">--ip黑名单，多个ip用逗号分隔</div><div class="line">CCDeny=<span class="string">"on"</span></div><div class="line">--是否开启拦截cc攻击(需要nginx.conf的http段增加lua_shared_dict <span class="built_in">limit</span> 10m;)</div><div class="line">CCrate = <span class="string">"100/60"</span></div><div class="line">--设置cc攻击频率，单位为秒.</div><div class="line">--默认1分钟同一个IP只能请求同一个地址100次</div><div class="line">html=[[Please go away~~]]</div><div class="line">--警告内容,可在中括号内自定义</div></pre></td></tr></table></figure></p>
+<p>备注:不要乱动双引号，区分大小写</p>
+<p>logdir目录尤其注意，需要用户自行创建，并且设置nginx用户可写，否则不会生成拦截日志也不会报错。</p>
+<h1 id="规则"><a href="#规则" class="headerlink" title="规则"></a>规则</h1><p>规则文件在wafconf下面，分为:</p>
+<hr>
+<p>o    args<br>o    cookie<br>o    post<br>o    url<br>o    user-agent<br>o    whiteurl</p>
+<hr>
+<p>文件一行一条规则，基于正则表达式编写，你可以根据你的需要进行修改。</p>
+<h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"> [root@localhost sbin]<span class="comment"># pwd</span></div><div class="line">/usr/<span class="built_in">local</span>/openresty/nginx/sbin</div></pre></td></tr></table></figure>
+<p>重启：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[root@localhost sbin]<span class="comment"># ./nginx -s reload</span></div></pre></td></tr></table></figure></p>
+<p>重启失败</p>
+<p>失败提示：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">nginx: [error] open() <span class="string">"/usr/local/openresty/nginx/logs/nginx.pid"</span> failed (2: No such file or directory)</div></pre></td></tr></table></figure></p>
+<p>原因：进到logs文件发现的确没有nginx.pid文件<br>解决：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[root@localhost logs]<span class="comment"># /usr/local/openresty/nginx/sbin/nginx -c /usr/local/openresty/nginx/conf/nginx.conf</span></div></pre></td></tr></table></figure></p>
+<p>此处，可以正常访问网站，并可以进行防护！<br><img src="/images/mod1/lua.png" alt="avatar"></p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+
+
+    <nav id="article-nav">
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2017/02/22/4-CentOS6.5搭建Nginx+Modsecurity/">
+                    CentOS6.5搭建Nginx+Modsecurity
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#一、安装openresty平台"><span class="toc-number">1.</span> <span class="toc-text">一、安装openresty平台</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#预装环境"><span class="toc-number">1.1.</span> <span class="toc-text">预装环境</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#部署Ngx-lua-waf"><span class="toc-number">2.</span> <span class="toc-text">部署Ngx_lua_waf</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#规则"><span class="toc-number">3.</span> <span class="toc-text">规则</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#测试"><span class="toc-number">4.</span> <span class="toc-text">测试</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"CentOS6.5搭建ngx_lua_waf　| Toorkits' blog　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+      <div class="duoshuo" id="comments">
+    <div id="comment-box" ></div>
+    <div class="ds-thread" id="ds-thread" data-thread-key="2017/02/22/5-CentOS6.5搭建ngx_lua_waf/" data-title="CentOS6.5搭建ngx_lua_waf" data-url="https://toorkits.github.io/2017/02/22/5-CentOS6.5搭建ngx_lua_waf/"></div>
+    <script>
+        var duoshuoQuery = {short_name:"toorkits"};
+        var loadComment = function(){
+            var d = document, s = d.createElement('script');
+            s.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+            s.async = true; s.charset = 'UTF-8';
+            (d.head || d.body).appendChild(s);
+        }
+
+        
+    </script>
+    
+    <script> loadComment(); </script>
+
+</div>
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2017/02/22/4-CentOS6.5搭建Nginx+Modsecurity/" title="下一篇: CentOS6.5搭建Nginx+Modsecurity">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/02/22/5-CentOS6.5搭建ngx_lua_waf/">CentOS6.5搭建ngx_lua_waf</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/22/4-CentOS6.5搭建Nginx+Modsecurity/">CentOS6.5搭建Nginx+Modsecurity</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/20/3-CentOS6.5搭建apache+modsecurity/">CentOS 6.5搭建apache+ modsecurity</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/28/2-那些强悍的PHP一句话后门/">那些强悍的PHP一句话后门</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2012-2017 Toorkits
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>
